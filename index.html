@@ -2276,7 +2276,8 @@
             analyzeFood();
         }
 
-        const SECRET_BLOB = "EARAGREOAFgUIAE6MSA/DTFfWjAmBSdCPBcsMFsWMEwAHgIIBVYZLDE7BwQgNFJDNgUyUQVYJjskNj06CgkyAwwDJVgXMiAXFyYvJlsxWDkbATlaIQ0IHiUlKVkGUkcbDDlAAzo+CzcXWygGClc9PRVZWxgGPlkhLhoaITwZDDJRMC9dISxfRQc4Kw4GAFg9EyE7GE4gIw8RWCwhMQkTHS5eHig=";
+        const SECRET_BLOB = "EARAGREOAFgOGCwlBSgfTSQbADskGQw5B1cJES8KWhQQGiU2KiQGRStZKB0bFR1BGQ4kCgIqGwcWHF4xWwoGIiAlNQNXLVgZMjsUMDZZOkQQXDlaIQ0IHiUlLhw2BSA6KzYDHlUAX0NOASkBABkiRwIVKwVTTD8vKjgIMwoqLzoGXhlbWzYyOlA2JV4tWAEeLCYKLVtZM0AqWwsDERM4GzVaOCg=";
+
         // Variável global para armazenar a chave (se a senha estiver certa)
         let GLOBAL_API_KEY = null;
 
@@ -2322,6 +2323,7 @@
         } else {
             alert("⚠️ Sem senha. Modo apenas leitura (sem IA).");
         }
+
         async function analyzeFood() {
             // VERIFICAÇÃO DA CHAVE GLOBAL
             if (!GLOBAL_API_KEY) {
@@ -2348,9 +2350,9 @@
                         messages: [
                             {
                                 role: "system",
-                                content: `Você é um nutricionista brasileiro experiente. 
+                                content: `Você é um nutricionista experiente. 
                                 Identifique o prato na imagem. Se for um prato complexo como Virado à Paulista, Feijoada, etc, considere todos os acompanhamentos visíveis.
-                                Estime as calorias totais e macronutrientes para a porção inteira exibida.
+                                Estime as calorias totais e macronutrientes para a porção inteira exibida de formaa precisa.
                                 Retorne APENAS um JSON puro (sem markdown) com as chaves: 
                                 name (string em pt-BR), portion (string), calories (int), protein (int), carbs (int), fat (int).`
                             },
@@ -2358,11 +2360,12 @@
                                 role: "user",
                                 content: [
                                     { type: "text", text: "Analise os macros desta refeição." },
-                                    { type: "image_url", image_url: { url: imageBase64 } }
+                                    { type: "image_url", image_url: { url: imageBase64, detail: "low" } }
                                 ]
                             }
                         ],
                         max_tokens: 300,
+                        temperature: 0.1,
                         response_format: { type: "json_object" }
                     })
                 });
@@ -2373,6 +2376,7 @@
 
                 const data = await response.json();
                 const foodData = JSON.parse(data.choices[0].message.content);
+                console.log("Resposta da IA:", foodData);
 
                 // Atualizar a UI com dados reais
                 document.getElementById('detected-food').textContent = foodData.name;
